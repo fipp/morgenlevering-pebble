@@ -1,8 +1,9 @@
 {
     "appKeys": {
-        "WEATHER_CITY_KEY": 2,
-        "WEATHER_ICON_KEY": 0,
-        "WEATHER_TEMPERATURE_KEY": 1
+        "currentPrice": 2,
+        "externalId": 3,
+        "id": 1,
+        "name": 0
     },
     "capabilities": [
         ""
@@ -13,6 +14,13 @@
     "projectType": "native",
     "resources": {
         "media": [
+            {
+                "file": "images/menuimage.png",
+                "menuIcon": true,
+                "name": "IMAGE_MENUITEM",
+                "targetPlatforms": null,
+                "type": "bitmap"
+            },
             {
                 "file": "images/sun.png",
                 "name": "IMAGE_SUN",
@@ -25,7 +33,6 @@
             },
             {
                 "file": "images/rain.png",
-                "menuIcon": true,
                 "name": "IMAGE_RAIN",
                 "type": "bitmap"
             },
@@ -39,8 +46,6 @@
     "sdkVersion": "3",
     "shortName": "Morgenlevering",
     "targetPlatforms": [
-        "aplite",
-        "basalt",
         "chalk"
     ],
     "uuid": "74460383-8a0f-4bb6-971f-8937c2ed4441",

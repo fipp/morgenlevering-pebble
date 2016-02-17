@@ -10,11 +10,24 @@ static GBitmap *s_icon_bitmap = NULL;
 static AppSync s_sync;
 static uint8_t s_sync_buffer[64];
 
+
+
+/*
 enum WeatherKey {
   WEATHER_ICON_KEY = 0x0,         // TUPLE_INT
   WEATHER_TEMPERATURE_KEY = 0x1,  // TUPLE_CSTRING
   WEATHER_CITY_KEY = 0x2,         // TUPLE_CSTRING
 };
+*/
+
+/*
+enum ProductKey {
+  PRODUCT_NAME_KEY = 0x0,
+  PRODUCT_ID_KEY = 0x1,
+  PRODUCT_PRICE_KEY = 0x2,
+  PRODUCT_EXTID_KEY = 0x3
+};
+*/
 
 static const uint32_t WEATHER_ICONS[] = {
   RESOURCE_ID_IMAGE_SUN, // 0
@@ -28,6 +41,8 @@ static void sync_error_callback(DictionaryResult dict_error, AppMessageResult ap
 }
 
 static void sync_tuple_changed_callback(const uint32_t key, const Tuple* new_tuple, const Tuple* old_tuple, void* context) {
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "Received message with key %d", (int) key);
+  /*
   switch (key) {
     case WEATHER_ICON_KEY:
       if (s_icon_bitmap) {
@@ -48,6 +63,7 @@ static void sync_tuple_changed_callback(const uint32_t key, const Tuple* new_tup
       text_layer_set_text(s_city_layer, new_tuple->value->cstring);
       break;
   }
+  */
 }
 
 static void request_weather(void) {
@@ -87,11 +103,22 @@ static void window_load(Window *window) {
   text_layer_set_text_alignment(s_city_layer, GTextAlignmentCenter);
   layer_add_child(window_layer, text_layer_get_layer(s_city_layer));
 
+  /*
   Tuplet initial_values[] = {
     TupletInteger(WEATHER_ICON_KEY, (uint8_t) 1),
     TupletCString(WEATHER_TEMPERATURE_KEY, "1234\u00B0C"),
     TupletCString(WEATHER_CITY_KEY, "St Pebblesburg"),
   };
+  
+  Tuplet initial_values[] = {
+    TupletCString(PRODUCT_NAME_KEY, 'Koiebrod'),
+    TupletInteger(PRODUCT_ID_KEY, (uint8_t) 1),
+    TupletInteger(PRODUCT_PRICE_KEY, (uint8_t) 29),
+    TupletCString(PRODUCT_EXTID_KEY, '5578')
+  };
+  */
+  
+  Tuplet initial_values[] = {};
 
   app_sync_init(&s_sync, s_sync_buffer, sizeof(s_sync_buffer),
       initial_values, ARRAY_LENGTH(initial_values),
@@ -129,7 +156,7 @@ static void deinit(void) {
 }
 
 int main(void) {
-  init();
-  app_event_loop();
-  deinit();
+  init(); // setup
+  app_event_loop(); // will block until the app is ready to exit
+  deinit(); // cleanup
 }

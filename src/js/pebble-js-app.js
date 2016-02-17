@@ -1,3 +1,4 @@
+/*
 var myAPIKey = '';
 
 function iconFromWeatherId(weatherId) {
@@ -11,21 +12,35 @@ function iconFromWeatherId(weatherId) {
     return 0;
   }
 }
+*/
 
 function fetchUserProducts () {
   var req = new XMLHttpRequest();
-  req.open('GET', 'http://dev-subscribe.di.no/api/pebble/products?userKey=123', true);
+  req.open('GET', 'http://dev-subscribe.di.no/api/pebble/products/123', true);
   req.onload = function () {
     if (req.readyState === 4) {
       if (req.status === 200) {
-        console.log(req.responseText);
+        var response = JSON.parse(req.responseText);
+        for (var i = 0; i < response.length; i++) {
+          var product = response[i];
+          
+          var name = product.name;
+          var id = product.id;
+          var price = product.price;
+          
+          Pebble.sendAppMessage(product);
+          
+          console.log('name ' + name + ', id ' + id);
+        }
       } else {
         console.log('Error');
       }
     }
-  }
+  };
+  req.send(null);
 }
 
+/*
 function fetchWeather(latitude, longitude) {
   var req = new XMLHttpRequest();
   
@@ -55,7 +70,6 @@ function fetchWeather(latitude, longitude) {
   req.send(null);
 }
 
-/*
 function locationSuccess(pos) {
   var coordinates = pos.coords;
   fetchWeather(coordinates.latitude, coordinates.longitude);
@@ -78,11 +92,6 @@ var locationOptions = {
 Pebble.addEventListener('ready', function (e) {
   console.log('ready', arguments);
   fetchUserProducts();
-  Pebble.sendAppMessage({
-    'WEATHER_ICON_KEY': 1,
-    'WEATHER_TEMPERATURE_KEY': 70 + '\xB0C',
-    'WEATHER_CITY_KEY': 'Oslo'
-  });
 });
 
 Pebble.addEventListener('appmessage', function (e) {
