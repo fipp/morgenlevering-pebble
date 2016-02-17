@@ -14,6 +14,7 @@ function iconFromWeatherId(weatherId) {
 
 function fetchWeather(latitude, longitude) {
   var req = new XMLHttpRequest();
+  
   req.open('GET', 'http://api.openweathermap.org/data/2.5/weather?' +
     'lat=' + latitude + '&lon=' + longitude + '&cnt=1&appid=' + myAPIKey, true);
   req.onload = function () {

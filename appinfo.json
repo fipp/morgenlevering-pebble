@@ -1,46 +1,50 @@
 {
-  "uuid": "74460383-8a0f-4bb6-971f-8937c2ed4441",
-  "shortName": "PebbleJS Weather",
-  "longName": "PebbleJS Weather",
-  "companyName": "Pebble Technology",
-  "versionCode": 2,
-  "versionLabel": "2.0",
-  "watchapp": {
-    "watchface": false
-  },
-  "appKeys": {
-    "WEATHER_CITY_KEY": 2,
-    "WEATHER_TEMPERATURE_KEY": 1,
-    "WEATHER_ICON_KEY": 0
-  },
-  "resources": {
-    "media": [
-      {
-        "type": "bitmap",
-        "name": "IMAGE_SUN",
-        "file": "img/sun.png"
-      },
-      {
-        "type": "bitmap",
-        "name": "IMAGE_RAIN",
-        "file": "img/rain.png"
-      },
-      {
-        "type": "bitmap",
-        "name": "IMAGE_CLOUD",
-        "file": "img/cloud.png"
-      },
-      {
-        "type": "bitmap",
-        "name": "IMAGE_SNOW",
-        "file": "img/snow.png"
-      }
-    ]
-  },
-  "targetPlatforms": [
-    "aplite",
-    "basalt",
-    "chalk"
-  ],
-  "sdkVersion": "3"
+    "appKeys": {
+        "WEATHER_CITY_KEY": 2,
+        "WEATHER_ICON_KEY": 0,
+        "WEATHER_TEMPERATURE_KEY": 1
+    },
+    "capabilities": [
+        ""
+    ],
+    "companyName": "Pebble Technology",
+    "enableMultiJS": false,
+    "longName": "PebbleJS Weather",
+    "projectType": "native",
+    "resources": {
+        "media": [
+            {
+                "file": "images/sun.png",
+                "name": "IMAGE_SUN",
+                "type": "bitmap"
+            },
+            {
+                "file": "images/snow.png",
+                "name": "IMAGE_SNOW",
+                "type": "bitmap"
+            },
+            {
+                "file": "images/rain.png",
+                "name": "IMAGE_RAIN",
+                "type": "bitmap"
+            },
+            {
+                "file": "images/cloud.png",
+                "name": "IMAGE_CLOUD",
+                "type": "bitmap"
+            }
+        ]
+    },
+    "sdkVersion": "3",
+    "shortName": "PebbleJS Weatherz",
+    "targetPlatforms": [
+        "aplite",
+        "basalt",
+        "chalk"
+    ],
+    "uuid": "74460383-8a0f-4bb6-971f-8937c2ed4441",
+    "versionLabel": "2.0",
+    "watchapp": {
+        "watchface": false
+    }
 }
