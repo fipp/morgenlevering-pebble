@@ -18,20 +18,24 @@ function fetchUserProducts () {
   var req = new XMLHttpRequest();
   req.open('GET', 'http://dev-subscribe.di.no/api/pebble/products/123', true);
   req.onload = function () {
+    console.log('req.readyState ' + req.readyState);
     if (req.readyState === 4) {
       if (req.status === 200) {
         var response = JSON.parse(req.responseText);
-        for (var i = 0; i < response.length; i++) {
-          var product = response[i];
-          
-          var name = product.name;
-          var id = product.id;
-          var price = product.price;
-          
-          Pebble.sendAppMessage(product);
-          
-          console.log('name ' + name + ', id ' + id);
-        }
+        //for (var i = 0; i < response.length; i++) {
+          var product = response[0];
+          Pebble.sendAppMessage(product,
+            function(e) {
+              console.log('Successfully delivered message with transactionId='
+              + e.data.transactionId);
+            },
+            function(e) {
+              console.log('Unable to deliver message with transactionId='
+              + e.data.transactionId
+              + ' Error is: ' + e.error.message);
+            }                      
+          );
+        //}
       } else {
         console.log('Error');
       }
@@ -39,6 +43,18 @@ function fetchUserProducts () {
   };
   req.send(null);
 }
+
+var transactionId = Pebble.sendAppMessage( { '0': 42, '1': 'String value' },
+  function(e) {
+    console.log('Successfully delivered message with transactionId='
+      + e.data.transactionId);
+  },
+  function(e) {
+    console.log('Unable to deliver message with transactionId='
+      + e.data.transactionId
+      + ' Error is: ' + e.error.message);
+  }
+);
 
 /*
 function fetchWeather(latitude, longitude) {
@@ -90,12 +106,17 @@ var locationOptions = {
 */
 
 Pebble.addEventListener('ready', function (e) {
-  console.log('ready', arguments);
+  console.log("ready...");
   fetchUserProducts();
 });
 
 Pebble.addEventListener('appmessage', function (e) {
-  console.log('appmessage', arguments);
+  console.log("addmessage js");
+ console.log ("        payload: " + e.payload);
+    console.log ("           type: " + e.payload.constructor.name);
+    var requestPayloadAsJsonString = JSON.stringify (e.payload);
+    console.log ("    stringified: " + requestPayloadAsJsonString);
+  
 });
 
 Pebble.addEventListener('webviewclosed', function (e) {
