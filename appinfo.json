@@ -7,9 +7,9 @@
     "capabilities": [
         ""
     ],
-    "companyName": "Pebble Technology",
+    "companyName": "Distribution Innovation",
     "enableMultiJS": false,
-    "longName": "PebbleJS Weather",
+    "longName": "Morgenlevering",
     "projectType": "native",
     "resources": {
         "media": [
@@ -25,6 +25,7 @@
             },
             {
                 "file": "images/rain.png",
+                "menuIcon": true,
                 "name": "IMAGE_RAIN",
                 "type": "bitmap"
             },
@@ -36,14 +37,14 @@
         ]
     },
     "sdkVersion": "3",
-    "shortName": "PebbleJS Weatherz",
+    "shortName": "Morgenlevering",
     "targetPlatforms": [
         "aplite",
         "basalt",
         "chalk"
     ],
     "uuid": "74460383-8a0f-4bb6-971f-8937c2ed4441",
-    "versionLabel": "2.0",
+    "versionLabel": "0.1",
     "watchapp": {
         "watchface": false
     }

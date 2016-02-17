@@ -12,6 +12,20 @@ function iconFromWeatherId(weatherId) {
   }
 }
 
+function fetchUserProducts () {
+  var req = new XMLHttpRequest();
+  req.open('GET', 'http://dev-subscribe.di.no/api/pebble/products?userKey=123', true);
+  req.onload = function () {
+    if (req.readyState === 4) {
+      if (req.status === 200) {
+        console.log(req.responseText);
+      } else {
+        console.log('Error');
+      }
+    }
+  }
+}
+
 function fetchWeather(latitude, longitude) {
   var req = new XMLHttpRequest();
   
@@ -41,6 +55,7 @@ function fetchWeather(latitude, longitude) {
   req.send(null);
 }
 
+/*
 function locationSuccess(pos) {
   var coordinates = pos.coords;
   fetchWeather(coordinates.latitude, coordinates.longitude);
@@ -58,7 +73,29 @@ var locationOptions = {
   'timeout': 15000,
   'maximumAge': 60000
 };
+*/
 
+Pebble.addEventListener('ready', function (e) {
+  console.log('ready', arguments);
+  fetchUserProducts();
+  Pebble.sendAppMessage({
+    'WEATHER_ICON_KEY': 1,
+    'WEATHER_TEMPERATURE_KEY': 70 + '\xB0C',
+    'WEATHER_CITY_KEY': 'Oslo'
+  });
+});
+
+Pebble.addEventListener('appmessage', function (e) {
+  console.log('appmessage', arguments);
+});
+
+Pebble.addEventListener('webviewclosed', function (e) {
+  console.log('webview closed');
+  console.log(e.type);
+  console.log(e.response);
+});
+
+/*
 Pebble.addEventListener('ready', function (e) {
   console.log('connect!' + e.ready);
   window.navigator.geolocation.getCurrentPosition(locationSuccess, locationError,
@@ -79,3 +116,4 @@ Pebble.addEventListener('webviewclosed', function (e) {
   console.log(e.type);
   console.log(e.response);
 });
+*/
