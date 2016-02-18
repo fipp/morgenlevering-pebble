@@ -49,10 +49,8 @@ function orderProduct () {
       console.log('req.status: ' + req.status);
       if (req.status === 200) {
         console.log('Great success!');
-        Pebble.sendAppMessage({'orderStatus': 'Bestilt!'});
       } else {
         console.log('Fail!');
-        Pebble.sendAppMessage({'orderStatus': 'Bestilling feilet!'});
       }
     }
   };
