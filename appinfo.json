@@ -2,8 +2,11 @@
     "appKeys": {
         "currentPrice": 2,
         "externalId": 3,
+        "getNextProduct": 5,
+        "getPreviousProduct": 4,
         "id": 1,
-        "name": 0
+        "name": 0,
+        "orderProduct": 6
     },
     "capabilities": [
         ""
@@ -15,9 +18,14 @@
     "resources": {
         "media": [
             {
-                "file": "images/menuimage.png",
-                "menuIcon": true,
-                "name": "IMAGE_MENUITEM",
+                "file": "images/menuimage_cropped_120x120.png",
+                "name": "IMAGE_MENUITEM_CROPPED_120",
+                "targetPlatforms": null,
+                "type": "bitmap"
+            },
+            {
+                "file": "images/menuimage_180x180.png",
+                "name": "IMAGE_MENUITEM_180",
                 "targetPlatforms": null,
                 "type": "bitmap"
             },
@@ -34,6 +42,13 @@
             {
                 "file": "images/rain.png",
                 "name": "IMAGE_RAIN",
+                "type": "bitmap"
+            },
+            {
+                "file": "images/menuimage.png",
+                "menuIcon": true,
+                "name": "IMAGE_MENUITEM",
+                "targetPlatforms": null,
                 "type": "bitmap"
             },
             {

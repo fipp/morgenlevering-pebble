@@ -14,28 +14,22 @@ function iconFromWeatherId(weatherId) {
 }
 */
 
+var userId = 406497;
+var products, activeProductIndex;
+
 function fetchUserProducts () {
   var req = new XMLHttpRequest();
-  req.open('GET', 'http://dev-subscribe.di.no/api/pebble/products/123', true);
+  req.open('GET', 'http://dev-subscribe.di.no/api/pebble/products/' + userId, true);
   req.onload = function () {
     console.log('req.readyState ' + req.readyState);
     if (req.readyState === 4) {
       if (req.status === 200) {
-        var response = JSON.parse(req.responseText);
-        //for (var i = 0; i < response.length; i++) {
-          var product = response[0];
-          Pebble.sendAppMessage(product,
-            function(e) {
-              console.log('Successfully delivered message with transactionId='
-              + e.data.transactionId);
-            },
-            function(e) {
-              console.log('Unable to deliver message with transactionId='
-              + e.data.transactionId
-              + ' Error is: ' + e.error.message);
-            }                      
-          );
-        //}
+        products = JSON.parse(req.responseText);
+        if (products.length > 0) {
+          activeProductIndex = 0;
+          sendAppMessage(products[activeProductIndex]);
+        }
+        //sendAppMessage(response, response.length);
       } else {
         console.log('Error');
       }
@@ -44,17 +38,46 @@ function fetchUserProducts () {
   req.send(null);
 }
 
-var transactionId = Pebble.sendAppMessage( { '0': 42, '1': 'String value' },
-  function(e) {
-    console.log('Successfully delivered message with transactionId='
-      + e.data.transactionId);
-  },
-  function(e) {
-    console.log('Unable to deliver message with transactionId='
-      + e.data.transactionId
-      + ' Error is: ' + e.error.message);
-  }
-);
+function orderProduct () {
+  var req = new XMLHttpRequest();
+  var orderUrl = 'http://10.200.197.112:8080/api/pebble/order/' + userId + '/' + products[activeProductIndex].externalId;
+  console.log('POSTing URL ' + orderUrl);
+  req.open('POST', orderUrl, true);
+  req.onload = function () {
+    console.log('onload ... readyState: ' + req.readyState);
+    if (req.readyState === 4) {
+      console.log('req.status: ' + req.status);
+      if (req.status === 200) {
+        console.log('Great success!');
+        Pebble.sendAppMessage({'orderStatus': 'Bestilt!'});
+      } else {
+        console.log('Fail!');
+        Pebble.sendAppMessage({'orderStatus': 'Bestilling feilet!'});
+      }
+    }
+  };
+  req.send(null);
+}
+
+//function sendAppMessage (messages, index) {
+//  console.log('Sending message ' + index + ' ...');
+function sendAppMessage(message) {
+//  Pebble.sendAppMessage(messages[index],
+  Pebble.sendAppMessage(message,
+    function(e) {
+      /*
+      var nextIndex = index - 1;
+      if (nextIndex > 0) {
+        sendAppMessage(messages, nextIndex)  
+      }
+      */
+      console.log('Successfully delivered message with transactionId=' + e.data.transactionId);
+    },
+    function(e) {
+      console.log('Unable to deliver message with transactionId=' + e.data.transactionId + ' Error is: ' + e.error.message);
+    }
+  );
+}
 
 /*
 function fetchWeather(latitude, longitude) {
@@ -111,12 +134,33 @@ Pebble.addEventListener('ready', function (e) {
 });
 
 Pebble.addEventListener('appmessage', function (e) {
-  console.log("addmessage js");
- console.log ("        payload: " + e.payload);
-    console.log ("           type: " + e.payload.constructor.name);
-    var requestPayloadAsJsonString = JSON.stringify (e.payload);
-    console.log ("    stringified: " + requestPayloadAsJsonString);
+  console.log('appmessage received: ' + Object.keys(e.payload).join(','));
+  if ('getNextProduct' in e.payload && activeProductIndex < products.length - 1) {
+    console.log('getting next product ...');
+    activeProductIndex += 1;
+    sendAppMessage(products[activeProductIndex]);
+  } else if ('getPreviousProduct' in e.payload && activeProductIndex > 0) {
+    console.log('getting previous product ...');
+    activeProductIndex -= 1;
+    sendAppMessage(products[activeProductIndex]);
+  } else if ('orderProduct' in e.payload) {
+    console.log('ordering product ...');
+    orderProduct();
+  }
   
+  
+  
+  
+  /*
+  console.log("addmessage js");
+  console.log("        payload: " + e.payload);
+  console.log("           type: " + e.payload.constructor.name);
+  var requestPayloadAsJsonString = JSON.stringify (e.payload);
+  console.log("    stringified: " + requestPayloadAsJsonString);
+  console.log("products");
+  console.log(products);
+  console.log(activeProductIndex);
+  */
 });
 
 Pebble.addEventListener('webviewclosed', function (e) {

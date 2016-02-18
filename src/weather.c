@@ -12,7 +12,7 @@ static uint8_t s_sync_buffer[64];
 
 static char str[12];
 
-static const char * externalProductId;
+static uint8_t order_status = 0;
 
 /*
 enum WeatherKey {
@@ -26,11 +26,16 @@ enum ProductKey {
   PRODUCT_NAME_KEY = 0x0,
   PRODUCT_ID_KEY = 0x1,
   PRODUCT_PRICE_KEY = 0x2,
-  PRODUCT_EXTID_KEY = 0x3
+  PRODUCT_EXTID_KEY = 0x3,
+  PRODUCT_GETPREVIOUSPRODUCT_KEY = 0x4,
+  PRODUCT_GETNEXTPRODUCT_KEY = 0x5,
+  PRODUCT_ORDERPRODUCT_KEY = 0x6
 };
 
 static const uint32_t ABO_ICONS[] = {
-  RESOURCE_ID_IMAGE_MENUITEM // 0
+  RESOURCE_ID_IMAGE_MENUITEM, // 0
+  RESOURCE_ID_IMAGE_MENUITEM_180, // 1
+  RESOURCE_ID_IMAGE_MENUITEM_CROPPED_120 // 2
   /*
   RESOURCE_ID_IMAGE_SUN, // 0
   RESOURCE_ID_IMAGE_CLOUD, // 1
@@ -44,51 +49,29 @@ static void sync_error_callback(DictionaryResult dict_error, AppMessageResult ap
 }
 
 static void sync_tuple_changed_callback(const uint32_t key, const Tuple* new_tuple, const Tuple* old_tuple, void* context) {
-  APP_LOG(APP_LOG_LEVEL_DEBUG, "Received message with key %d", (int) key);
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "Received message with key %d (order status %d)", (int) key, order_status);
   
-  switch (key) {
-    /*
-    case WEATHER_ICON_KEY:
-      if (s_icon_bitmap) {
-        gbitmap_destroy(s_icon_bitmap);
-      }
-
-      s_icon_bitmap = gbitmap_create_with_resource(WEATHER_ICONS[new_tuple->value->uint8]);
-      bitmap_layer_set_compositing_mode(s_icon_layer, GCompOpSet);
-      bitmap_layer_set_bitmap(s_icon_layer, s_icon_bitmap);
-      break;
-    */
+  if (order_status != 2) {
+    switch (key) {    
+      case PRODUCT_NAME_KEY:
+        APP_LOG(APP_LOG_LEVEL_DEBUG, "Product name: %s", new_tuple->value->cstring);
+        // App Sync keeps new_tuple in s_sync_buffer, so we may use it directly
+        text_layer_set_text(s_temperature_layer, new_tuple->value->cstring);
+        break;
     
-    case PRODUCT_NAME_KEY:
-      // App Sync keeps new_tuple in s_sync_buffer, so we may use it directly
-      text_layer_set_text(s_temperature_layer, new_tuple->value->cstring);
-      break;
-
-    case PRODUCT_PRICE_KEY:
-      //APP_LOG(APP_LOG_LEVEL_DEBUG, "Received message with value %s", (int) key);
-      
-      //sprintf(str, "%d", new_tuple->value->uint8);
-      snprintf(str,sizeof(str),"Pris: %d",new_tuple->value->uint8);
-      //itoa(new_tuple->value->uint8,str, 10);
-      text_layer_set_text(s_city_layer, str);
-      break;
-    
-    case PRODUCT_EXTID_KEY:
-      //APP_LOG(APP_LOG_LEVEL_DEBUG, "Received message with value %s", (int) key);
-    
-      externalProductId = new_tuple->value->cstring;
-      APP_LOG(APP_LOG_LEVEL_DEBUG, "externalId: %s", externalProductId);
-    
-      //sprintf(str, "%d", new_tuple->value->uint8);
-      //snprintf(str,sizeof(str),"Pris: %d",new_tuple->value->uint8);
-      //itoa(new_tuple->value->uint8,str, 10);
-      //text_layer_set_text(s_city_layer, str);
-      break;
-    
+      case PRODUCT_PRICE_KEY:
+        //APP_LOG(APP_LOG_LEVEL_DEBUG, "Received message with value %s", (int) key);
+        //sprintf(str, "%d", new_tuple->value->uint8);
+        //itoa(new_tuple->value->uint8,str, 10);
+        snprintf(str,sizeof(str),"Pris: %d",new_tuple->value->uint8);
+        APP_LOG(APP_LOG_LEVEL_DEBUG, "Product price: %s", str);
+        text_layer_set_text(s_city_layer, str);
+        break;
+    }
   }
   
 }
-
+/*
 static void order_product(void) {
   DictionaryIterator *iter;
   app_message_outbox_begin(&iter);
@@ -98,7 +81,7 @@ static void order_product(void) {
     return;
   }
   
-  dict_write_cstring(iter, 3, externalProductId);
+  dict_write_cstring(iter, 6, activeProductId);
   dict_write_end(iter);
   
   //dict_write_uint8 (iter, 0, 0x1);
@@ -106,20 +89,43 @@ static void order_product(void) {
 
   app_message_outbox_send();
 }
+*/
+
+static void send_msg(int code) {
+  DictionaryIterator *iter;
+  app_message_outbox_begin(&iter);
+  if (!iter) {
+    // Error creating outbound message
+    return;
+  }
+  int value = 1;
+  dict_write_int(iter, code, &value, sizeof(int), true);
+  app_message_outbox_send();
+}
 
 static void up_click_handler(ClickRecognizerRef recognizer, void *context) {
-  text_layer_set_text(s_city_layer, "Up pressed!");
+  order_status = 0;
+  send_msg(5);
 }
 
 static void select_click_handler(ClickRecognizerRef recognizer, void *context) {
-  //text_layer_set_text(s_city_layer, "Select pressed!");
-  order_product();
+  
+  if (order_status == 0) {
+    order_status = 1;
+    text_layer_set_text(s_temperature_layer, "Er du sikker?");
+  } else if (order_status == 1) {
+    order_status = 2;
+    text_layer_set_text(s_temperature_layer, "Bestilt!");
+    text_layer_set_text(s_city_layer, "");
+    send_msg(6);
+  }
+  
 }
 
 static void down_click_handler(ClickRecognizerRef recognizer, void *context) {
-  text_layer_set_text(s_city_layer, "Down pressed!");
+  order_status = 0;
+  send_msg(4);
 }
-
 
 static void click_config_provider(void *context) {
   // Register the ClickHandlers
@@ -143,7 +149,7 @@ static void window_load(Window *window) {
         gbitmap_destroy(s_icon_bitmap);
   }
   */
-  s_icon_bitmap = gbitmap_create_with_resource(ABO_ICONS[0]);
+  s_icon_bitmap = gbitmap_create_with_resource(ABO_ICONS[2]);
   bitmap_layer_set_compositing_mode(s_icon_layer, GCompOpSet);
   bitmap_layer_set_bitmap(s_icon_layer, s_icon_bitmap);
 
@@ -181,9 +187,16 @@ static void window_load(Window *window) {
   
   // Tuplet initial_values[] = {};
 
-  app_sync_init(&s_sync, s_sync_buffer, sizeof(s_sync_buffer),
-      initial_values, ARRAY_LENGTH(initial_values),
-      sync_tuple_changed_callback, sync_error_callback, NULL);
+  app_sync_init(
+    &s_sync,
+    s_sync_buffer,
+    sizeof(s_sync_buffer),
+    initial_values,
+    ARRAY_LENGTH(initial_values),
+    sync_tuple_changed_callback,
+    sync_error_callback,
+    NULL
+  );
 
   //order_product();
 }
